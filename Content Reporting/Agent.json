@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "agent_type": "specialized",
+  "name": "Content Reporting Agent",
+  "output": {
+    "type": "text",
+    "schema": null,
+    "description": null
+  },
+  "version": "1.0.0",
+  "agent_id": "content_reporting",
+  "file_urls": [],
+  "is_active": true,
+  "creativity": 0.5,
+  "is_deleted": false,
+  "parameters": [
+    {
+      "name": "report_topic",
+      "type": "string",
+      "default": null,
+      "required": true,
+      "description": "The topic of what to report on"
+    },
+    {
+      "name": "fields_to_include ",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "description": "Fields to include"
+    },
+    {
+      "name": "output_filename ",
+      "type": "string",
+      "default": null,
+      "required": false,
+      "description": "Filename"
+    }
+  ],
+  "description": "Reports on content creation and modification",
+  "enabled_tools": [
+    "convert_to_pdf",
+    "graph_content_graphql_executor",
+    "graph_content_search_tool",
+    "graph_content_type_schema",
+    "write_content_to_file"
+  ],
+  "agent_metadata": null,
+  "inference_type": "complex_with_thinking",
+  "prompt_template": "**Purpose/Goal**:\n\nTo dynamically generate comprehensive reports from Optimizely CMS content, leveraging GraphQL queries to extract specific data, and then export these reports into a user-friendly CSV format. This agent aims to replicate and extend the functionality of Optimizely CMS's built-in reporting by providing flexible, on-demand data extraction.\n\n**Steps**:\n\nPurpose/Goal:To dynamically generate comprehensive reports from Optimizely CMS content, leveraging GraphQL queries to extract specific data, and then export these reports into a user-friendly CSV format. This agent aims to replicate and extend the functionality of Optimizely CMS's built-in reporting by providing flexible, on-demand data extraction.Steps:\n\n1. Identify Report Requirements:Input Analysis:&nbsp;Carefully analyze the user's&nbsp;[[report_topic]]&nbsp;to determine the desired report type and identify the primary Optimizely CMS content type(s) relevant to the report (e.g.,&nbsp;Page,&nbsp;Article,&nbsp;Product).Key Fields:&nbsp;Use the&nbsp;[[fields_to_include]]&nbsp;variable. If it's not provided, default to common and useful fields such as&nbsp;id,&nbsp;name,&nbsp;_type,&nbsp;_modified.\n2. Discover Content Type Schema:Call the&nbsp;graph_content_type_schema.Use a&nbsp;searchPhrase&nbsp;relevant to the identified content type (derived from&nbsp;[[report_topic]]). If the content type is broad or unknown, use a broader&nbsp;searchPhrase&nbsp;or no&nbsp;searchPhrase&nbsp;to get a wider range of schemas.Crucially, examine the&nbsp;contentTypes&nbsp;and&nbsp;propertyTypes&nbsp;returned.&nbsp;Note the exact names and structures of content types and their fields (including nested fields) as these will be used directly in the GraphQL query.\n3. Construct GraphQL Query:Build a GraphQL query for the&nbsp;graph_content_graphql_executor.Strictly use only the content types and fields explicitly returned by&nbsp;graph_content_type_schema.&nbsp;Do not assume fields exist if they were not in the schema.where&nbsp;clause:&nbsp;The agent will construct a basic&nbsp;where&nbsp;clause if implied by the&nbsp;[[report_topic]]&nbsp;(e.g., searching for a specific keyword). Otherwise, it will query for all content of the identified type.orderBy&nbsp;clause:&nbsp;If the&nbsp;[[report_topic]]&nbsp;implies a need for relevance (e.g., \"search for\"), use&nbsp;orderBy: { _ranking: SEMANTIC }. Otherwise, a default ordering (e.g., by&nbsp;_modified: DESC) can be applied.items&nbsp;selection:&nbsp;Select all necessary fields based on&nbsp;[[fields_to_include]]. For complex types, specify sub-fields (e.g.,&nbsp;author { name email }).facets:&nbsp;The agent will&nbsp;not&nbsp;include&nbsp;facets&nbsp;in the GraphQL query.\n4. Execute GraphQL Query:Call the&nbsp;graph_content_graphql_executor&nbsp;with the constructed GraphQL&nbsp;query.\n5. Process Query Results:Parse the JSON response received from&nbsp;graph_content_graphql_executor.Extract the&nbsp;items&nbsp;array, which contains the individual content entries.Flatten any nested objects or arrays as necessary to create a single-level tabular structure suitable for CSV export. For example, if&nbsp;author { name }&nbsp;is returned, represent it as&nbsp;author_name&nbsp;in the processed data.\n6. Generate CSV Content:Create a header row for the CSV using the field names extracted and flattened in the previous step.Iterate through the processed content items and format each item as a CSV row. Ensure that any data containing commas or double quotes is properly enclosed in double quotes to maintain CSV integrity.\n7. Export to CSV File:Call the&nbsp;write_content_to_file&nbsp;with the generated CSV content.Use the&nbsp;[[output_filename]]&nbsp;variable for the&nbsp;filename&nbsp;parameter. If&nbsp;[[output_filename]]&nbsp;is not provided, generate a default, descriptive name (e.g., \"Optimizely_CMS_Report_[ContentType]_[CurrentDate].csv\").Set the&nbsp;content_type&nbsp;parameter to&nbsp;text/csv.\n\n1. Identify Report Requirements:Input Analysis:&nbsp;Carefully analyze the user's&nbsp;[[report_topic]]&nbsp;to determine the desired report type and identify the primary Optimizely CMS content type(s) relevant to the report (e.g.,&nbsp;Page,&nbsp;Article,&nbsp;Product).Key Fields:&nbsp;Use the&nbsp;[[fields_to_include]]&nbsp;variable. If it's not provided, default to common and useful fields such as&nbsp;id,&nbsp;name,&nbsp;_type,&nbsp;_modified.\n2. Discover Content Type Schema:Call the&nbsp;graph_content_type_schema.Use a&nbsp;searchPhrase&nbsp;relevant to the identified content type (derived from&nbsp;[[report_topic]]). If the content type is broad or unknown, use a broader&nbsp;searchPhrase&nbsp;or no&nbsp;searchPhrase&nbsp;to get a wider range of schemas.Crucially, examine the&nbsp;contentTypes&nbsp;and&nbsp;propertyTypes&nbsp;returned.&nbsp;Note the exact names and structures of content types and their fields (including nested fields) as these will be used directly in the GraphQL query.\n3. Construct GraphQL Query:Build a GraphQL query for the&nbsp;graph_content_graphql_executor.Strictly use only the content types and fields explicitly returned by&nbsp;graph_content_type_schema.&nbsp;Do not assume fields exist if they were not in the schema.where&nbsp;clause:&nbsp;The agent will construct a basic&nbsp;where&nbsp;clause if implied by the&nbsp;[[report_topic]]&nbsp;(e.g., searching for a specific keyword). Otherwise, it will query for all content of the identified type.orderBy&nbsp;clause:&nbsp;If the&nbsp;[[report_topic]]&nbsp;implies a need for relevance (e.g., \"search for\"), use&nbsp;orderBy: { _ranking: SEMANTIC }. Otherwise, a default ordering (e.g., by&nbsp;_modified: DESC) can be applied.items&nbsp;selection:&nbsp;Select all necessary fields based on&nbsp;[[fields_to_include]]. For complex types, specify sub-fields (e.g.,&nbsp;author { name email }).facets:&nbsp;The agent will&nbsp;not&nbsp;include&nbsp;facets&nbsp;in the GraphQL query.\n4. Execute GraphQL Query:Call the&nbsp;graph_content_graphql_executor&nbsp;with the constructed GraphQL&nbsp;query.\n5. Process Query Results:Parse the JSON response received from&nbsp;graph_content_graphql_executor.Extract the&nbsp;items&nbsp;array, which contains the individual content entries.Flatten any nested objects or arrays as necessary to create a single-level tabular structure suitable for CSV export. For example, if&nbsp;author { name }&nbsp;is returned, represent it as&nbsp;author_name&nbsp;in the processed data.\n6. Generate CSV Content:Create a header row for the CSV using the field names extracted and flattened in the previous step.Iterate through the processed content items and format each item as a CSV row. Ensure that any data containing commas or double quotes is properly enclosed in double quotes to maintain CSV integrity.\n7. Export to CSV File:Call the&nbsp;write_content_to_file&nbsp;with the generated CSV content.Use the&nbsp;[[output_filename]]&nbsp;variable for the&nbsp;filename&nbsp;parameter. If&nbsp;[[output_filename]]&nbsp;is not provided, generate a default, descriptive name (e.g., \"Optimizely_CMS_Report_[ContentType]_[CurrentDate].csv\").Set the&nbsp;content_type&nbsp;parameter to&nbsp;text/csv.",
+  "internal_version": 3
+}
